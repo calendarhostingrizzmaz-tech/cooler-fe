@@ -53,12 +53,12 @@ const LandingPage: React.FC = () => {
               Official Store
             </span>
             <h1 className="text-[1.85rem] leading-[1.12] min-[400px]:text-[2.1rem] sm:text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-4 sm:mb-5 md:mb-6">
-              Beat The Heat <br />
-              <span className="text-blue-600">With Precision.</span>
+ National electric water cooler
+ <br />
+              <span className="text-blue-600"> Price in Pakistan</span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-500 mb-6 sm:mb-8 md:mb-10 max-w-lg mx-auto md:mx-0 leading-relaxed px-1 sm:px-0">
-              Experience next-generation cooling technology with our premium range of air coolers, refrigerators, and climate solutions.
-            </p>
+Electric water cooler Price in Pakistan from national industries,We have a wide range stock of electric water coolers available at affordable price in throughout pakistan.how you have can buy best quality water cooler in Pakistan            </p>
             <div className="relative z-30 flex flex-col min-[400px]:flex-row flex-wrap gap-3 sm:gap-4 justify-center md:justify-start">
               <Link
                 to="/store"

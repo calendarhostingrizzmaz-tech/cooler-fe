@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
           <h4 className="text-xl font-bold mb-8">Shop Collections</h4>
           <ul className="space-y-4 text-gray-400 font-medium">
             <li><Link to="/store" className="hover:text-blue-600 transition-all">Air Coolers</Link></li>
-            <li><Link to="/store" className="hover:text-blue-600 transition-all">Refrigerators</Link></li>
+            {/* <li><Link to="/store" className="hover:text-blue-600 transition-all">Refrigerators</Link></li> */}
             <li><Link to="/store" className="hover:text-blue-600 transition-all">Smart Fans</Link></li>
             <li><Link to="/store" className="hover:text-blue-600 transition-all">Air Conditioners</Link></li>
           </ul>
@@ -106,7 +106,7 @@ const Footer: React.FC = () => {
           <ul className="space-y-4 text-gray-400 font-medium leading-relaxed pr-6">
             <li className="flex gap-3">
                 <span className="text-lg">📍</span>
-                <span>Main Market Road, <br/>Electronics Hub Zone-4</span>
+                <span>Bank stop, Ashiyana Road, <br/>Lahore_kasur, Road, تحصیل ماڈل ٹاؤن, 54000, PK</span>
             </li>
             <li className="flex gap-3">
                 <span className="text-lg">📞</span>
@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
                 </li>
             <li className="flex gap-3">
                 <span className="text-lg"></span>
-                <span>swatercoolern@gmail.com</span>
+                <span>watercoolern@gmail.com</span>
             </li>
           </ul>
         </div>
