@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 /** Store WhatsApp (digits only). Used if `BUSINESS_WHATSAPP` is not set on the API. */
-const DEFAULT_STORE_WHATSAPP_DIGITS = '923044929378';
+const DEFAULT_STORE_WHATSAPP_DIGITS = '923065758181';
 
 type BankInfo = {
   bankName: string;

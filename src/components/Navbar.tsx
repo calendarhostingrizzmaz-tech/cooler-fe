@@ -23,8 +23,8 @@ const Navbar: React.FC = () => {
             <img
               src="/logo-removebg-preview.png"
               alt="Home"
-              className="h-9 w-auto max-w-[min(100%,11rem)] sm:h-11 md:h-12 object-contain object-left"
-              width={220}
+              className="h-9 w-auto max-w-[min(100%,11rem)]  sm:h-11 md:h-16 object-contain object-left"
+              width={260}
               height={48}
               decoding="async"
             />

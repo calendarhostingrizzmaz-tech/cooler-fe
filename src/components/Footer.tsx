@@ -31,6 +31,8 @@ const SocialRailIcon: Record<string, React.ReactNode> = {
   ),
 };
 
+const WHATSAPP_WA_ME_URL = 'https://wa.me/923065758181';
+
 const socialRail = [
   { id: 'facebook', href: 'https://www.facebook.com/', label: 'Facebook', panel: 'bg-[#1877F2]' },
   { id: 'twitter', href: 'https://twitter.com/', label: 'X (Twitter)', panel: 'bg-[#5AC8FA]' },
@@ -41,8 +43,13 @@ const socialRail = [
     label: 'Instagram',
     panel: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]',
   },
-  { id: 'whatsapp', href: 'https://wa.me/923065758181', label: 'WhatsApp', panel: 'bg-[#25D366]' },
+  { id: 'whatsapp', href: WHATSAPP_WA_ME_URL, label: 'WhatsApp', panel: 'bg-[#25D366]' },
 ] as const;
+
+const STORE_MAPS_URL = 'https://www.google.com/maps?q=31.439161,74.361298';
+
+const SUPPORT_EMAIL = 'watercoolern@gmail.com';
+const GMAIL_COMPOSE_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SUPPORT_EMAIL)}`;
 
 const Footer: React.FC = () => {
   return (
@@ -104,21 +111,62 @@ const Footer: React.FC = () => {
         <div>
           <h4 className="text-xl font-bold mb-8">Office & Support</h4>
           <ul className="space-y-4 text-gray-400 font-medium leading-relaxed pr-6">
-            <li className="flex gap-3">
-                <span className="text-lg">📍</span>
-                <span>Bank stop, Ashiyana Road, <br/>Lahore_kasur, Road, تحصیل ماڈل ٹاؤن, 54000, PK</span>
+            <li>
+              <a
+                href={STORE_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
+                aria-label="Open store address in Google Maps"
+              >
+                <span className="text-lg shrink-0" aria-hidden>
+                  📍
+                </span>
+                <span>
+                  Bank stop, Ashiyana Road, <br />
+                  Lahore_kasur, Road, تحصیل ماڈل ٹاؤن, 54000, PK
+                </span>
+              </a>
             </li>
-            <li className="flex gap-3">
-                <span className="text-lg">📞</span>
+            <li>
+              <a
+                href="tel:+923217732994"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
+                aria-label="Call 03217732994"
+              >
+                <span className="text-lg shrink-0" aria-hidden>
+                  📞
+                </span>
                 <span>03217732994-(Call)</span>
+              </a>
             </li>
-            <li className="flex gap-3">
-                <span className="text-lg">📞</span>
+            <li>
+              <a
+                href={WHATSAPP_WA_ME_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
+                aria-label="Open WhatsApp chat for 03065758181"
+              >
+                <span className="text-lg shrink-0" aria-hidden>
+                  📞
+                </span>
                 <span>03065758181-(WhatsApp)</span>
-                </li>
-            <li className="flex gap-3">
-                <span className="text-lg"></span>
-                <span>watercoolern@gmail.com</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={GMAIL_COMPOSE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm break-all"
+                aria-label={`Compose email to ${SUPPORT_EMAIL} in Gmail`}
+              >
+                <span className="text-lg shrink-0" aria-hidden>
+                  ✉️
+                </span>
+                <span>{SUPPORT_EMAIL}</span>
+              </a>
             </li>
           </ul>
         </div>
