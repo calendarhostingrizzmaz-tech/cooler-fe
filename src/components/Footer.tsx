@@ -34,12 +34,12 @@ const SocialRailIcon: Record<string, React.ReactNode> = {
 const WHATSAPP_WA_ME_URL = 'https://wa.me/923065758181';
 
 const socialRail = [
-  { id: 'facebook', href: 'https://www.facebook.com/', label: 'Facebook', panel: 'bg-[#1877F2]' },
-  { id: 'twitter', href: 'https://twitter.com/', label: 'X (Twitter)', panel: 'bg-[#5AC8FA]' },
-  { id: 'youtube', href: 'https://www.youtube.com/', label: 'YouTube', panel: 'bg-[#FF0000]' },
+  { id: 'facebook', href: 'https://www.facebook.com/share/1DsFXR2Aki/', label: 'Facebook', panel: 'bg-[#1877F2]' },
+  { id: 'twitter', href: 'https://x.com/WaterCoole98795', label: 'X (Twitter)', panel: 'bg-[#5AC8FA]' },
+  { id: 'youtube', href: 'https://www.youtube.com/@NationalelectricWatercoole-q7d', label: 'YouTube', panel: 'bg-[#FF0000]' },
   {
     id: 'instagram',
-    href: 'https://www.instagram.com/',
+    href: 'https://www.instagram.com/national_electric_water_cooler?utm_source=qr&igsh=MTF4dnY2amNobjM4NQ==',
     label: 'Instagram',
     panel: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]',
   },
@@ -47,6 +47,8 @@ const socialRail = [
 ] as const;
 
 const STORE_MAPS_URL = 'https://www.google.com/maps?q=31.439161,74.361298';
+const BRANCH_1_MAPS_URL = 'https://www.google.com/maps?q=30.206791,71.464722';
+const BRANCH_2_MAPS_URL = 'https://www.google.com/maps?q=33.624222,73.068703';
 
 const SUPPORT_EMAIL = 'watercoolern@gmail.com';
 const GMAIL_COMPOSE_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SUPPORT_EMAIL)}`;
@@ -119,13 +121,35 @@ const Footer: React.FC = () => {
                 className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
                 aria-label="Open store address in Google Maps"
               >
-                <span className="text-lg shrink-0" aria-hidden>
-                  📍
-                </span>
+                <span className="text-lg shrink-0" aria-hidden>📍</span>
                 <span>
                   Bank stop, Ashiyana Road, <br />
                   Lahore_kasur, Road, تحصیل ماڈل ٹاؤن, 54000, PK
                 </span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={BRANCH_1_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
+                aria-label="Open Branch 2 location in Google Maps"
+              >
+                <span className="text-lg shrink-0" aria-hidden>📍</span>
+                <span>Branch — Muzaffargarh, Punjab, PK</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={BRANCH_2_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 hover:text-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded-sm"
+                aria-label="Open Branch 3 location in Google Maps"
+              >
+                <span className="text-lg shrink-0" aria-hidden>📍</span>
+                <span>Branch — Rawalpindi, Punjab, PK</span>
               </a>
             </li>
             <li>

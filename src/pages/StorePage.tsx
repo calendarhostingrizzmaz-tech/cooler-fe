@@ -437,7 +437,7 @@ const StorePage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
             <div key={i} className="bg-gray-100 rounded-2xl h-80 animate-pulse" />
           ))}
@@ -463,7 +463,7 @@ const StorePage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {items.map((item) => {
               const gallery = itemGalleryUrls(item);
               const rawIdx = gridImageIndexById[item.id] ?? 0;
@@ -645,7 +645,7 @@ const StorePage: React.FC = () => {
 
       {/* Product Detail Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] px-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-[100] px-4 py-8 overflow-y-auto animate-in fade-in duration-300">
           <div 
             className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row relative animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
@@ -718,7 +718,7 @@ const StorePage: React.FC = () => {
             </div>
 
             {/* Right: Content */}
-            <div className="md:w-1/2 p-8 flex flex-col max-h-[80vh]">
+            <div className="md:w-1/2 p-8 flex flex-col">
               <div className="mb-6">
                 <h2 className="text-3xl font-black text-gray-900 mb-2">{selectedItem.name}</h2>
                 <div className="flex flex-wrap items-baseline gap-3">
@@ -739,11 +739,12 @@ const StorePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar mb-8">
+              <div className="mb-8">
                 <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Description</h4>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-lg">
-                  {selectedItem.description}
-                </p>
+                <div
+                  className="prose prose-sm max-w-none text-gray-600 text-base leading-relaxed rich-description"
+                  dangerouslySetInnerHTML={{ __html: selectedItem.description }}
+                />
               </div>
 
               <button

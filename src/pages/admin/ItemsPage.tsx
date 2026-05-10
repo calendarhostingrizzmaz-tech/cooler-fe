@@ -8,6 +8,7 @@ import {
   itemHasDiscount,
   itemGalleryUrls,
 } from '../../utils/itemPrice';
+import RichTextEditor from '../../components/admin/RichTextEditor';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -645,13 +646,10 @@ const ItemsPage: React.FC = () => {
                   </div>
                   <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                <textarea
+                <RichTextEditor
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  required
-                  rows={3}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
-                  placeholder="Product description..."
+                  onChange={(html) => setForm({ ...form, description: html })}
+                  placeholder="Product description — use headings, bold, lists…"
                 />
                   </div>
                 </div>
