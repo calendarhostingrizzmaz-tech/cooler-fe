@@ -137,7 +137,7 @@ const Footer: React.FC = () => {
                 aria-label="Open Branch 2 location in Google Maps"
               >
                 <span className="text-lg shrink-0" aria-hidden>📍</span>
-                <span>Branch — Muzaffargarh, Punjab, PK</span>
+                <span>Mohalla Kotla Tollay Khan, Multan, PK </span>
               </a>
             </li>
             <li>
