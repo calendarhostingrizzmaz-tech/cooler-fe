@@ -8,6 +8,7 @@ const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 interface Category {
   id: number;
   name: string;
+  isDefault: boolean;
 }
 
 const CategoriesPage: React.FC = () => {
@@ -79,6 +80,16 @@ const CategoriesPage: React.FC = () => {
     }
   };
 
+  const handleSetDefault = async (id: number) => {
+    try {
+      await axios.put(`${API}/categories/${id}/set-default`, {}, authHeader);
+      showToast('Default category updated!');
+      fetchCategories();
+    } catch {
+      showToast('Failed to set default category.', 'error');
+    }
+  };
+
   const handleDelete = async (id: number, name: string) => {
     if (name === 'Other') {
       showToast('Cannot delete the default "Other" category.', 'error');
@@ -142,25 +153,33 @@ const CategoriesPage: React.FC = () => {
                     <td className="px-6 py-4 text-sm text-gray-400">#{cat.id}</td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {cat.name}
-                      {cat.name === 'Other' && <span className="ml-2 bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full uppercase">Default</span>}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      {cat.name !== 'Other' && (
-                        <>
-                          <button
-                            onClick={() => openEdit(cat)}
-                            className="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3 transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cat.id, cat.name)}
-                            className="text-red-500 hover:text-red-700 font-medium text-sm transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </>
+                      {cat.isDefault && (
+                        <span className="ml-2 bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">
+                          Default
+                        </span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
+                      {!cat.isDefault && (
+                        <button
+                          onClick={() => handleSetDefault(cat.id)}
+                          className="text-green-600 hover:text-green-800 font-medium text-sm transition-colors"
+                        >
+                          Set Default
+                        </button>
+                      )}
+                      <button
+                        onClick={() => openEdit(cat)}
+                        className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat.id, cat.name)}
+                        className="text-red-500 hover:text-red-700 font-medium text-sm transition-colors"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

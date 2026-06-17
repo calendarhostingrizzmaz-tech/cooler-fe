@@ -53,6 +53,7 @@ const ItemsPage: React.FC = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [listPage, setListPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -204,9 +205,9 @@ const ItemsPage: React.FC = () => {
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${API}/items?page=${listPage}&limit=${ADMIN_ITEMS_PAGE_SIZE}`,
-      );
+      let url = `${API}/items?page=${listPage}&limit=${ADMIN_ITEMS_PAGE_SIZE}`;
+      if (filterCategoryId != null) url += `&categoryId=${filterCategoryId}`;
+      const res = await axios.get(url);
       const { items: list, lastPage, total } = parseItemsListResponse(res);
       setItems((list || []) as Item[]);
       setTotalPages(lastPage);
@@ -218,7 +219,7 @@ const ItemsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [listPage]);
+  }, [listPage, filterCategoryId]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -234,6 +235,10 @@ const ItemsPage: React.FC = () => {
     fetchItems();
     fetchCategories();
   }, [fetchItems, fetchCategories]);
+
+  useEffect(() => {
+    setListPage(1);
+  }, [filterCategoryId]);
 
   useEffect(() => {
     if (!loading && totalPages >= 1 && listPage > totalPages) {
@@ -342,13 +347,16 @@ const ItemsPage: React.FC = () => {
           </div>
         )}
 
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Manage Items</h1>
             {!loading && totalCount > 0 && (
               <p className="mt-1 text-sm text-gray-500">
                 {(listPage - 1) * ADMIN_ITEMS_PAGE_SIZE + 1}–
                 {Math.min(listPage * ADMIN_ITEMS_PAGE_SIZE, totalCount)} of {totalCount} products
+                {filterCategoryId != null && categories.find(c => c.id === filterCategoryId) && (
+                  <span className="ml-1">in <span className="font-semibold text-blue-600">{categories.find(c => c.id === filterCategoryId)?.name}</span></span>
+                )}
               </p>
             )}
           </div>
@@ -359,6 +367,37 @@ const ItemsPage: React.FC = () => {
             + Add Item
           </button>
         </div>
+
+        {/* Category Filter */}
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => setFilterCategoryId(null)}
+              className={`shrink-0 whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-bold transition-all ${
+                filterCategoryId === null
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-md'
+                  : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              All
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFilterCategoryId(cat.id)}
+                className={`shrink-0 whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-bold transition-all ${
+                  filterCategoryId === cat.id
+                    ? 'border-blue-600 bg-blue-600 text-white shadow-md'
+                    : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-20 text-gray-400">Loading items…</div>

@@ -16,6 +16,7 @@ const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 interface Category {
   id: number;
   name: string;
+  isDefault?: boolean;
 }
 
 interface ItemImageRow {
@@ -205,7 +206,21 @@ const StorePage: React.FC = () => {
           byId.set(c.id, c as Category);
         }
       }
-      setCategories(Array.from(byId.values()));
+      const list = Array.from(byId.values());
+      setCategories(list);
+
+      // Auto-select default category if no category is in URL
+      const hasCategory = searchParams.get('categoryId');
+      if (!hasCategory) {
+        const def = list.find((c) => c.isDefault);
+        if (def) {
+          setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('categoryId', String(def.id));
+            return next;
+          }, { replace: true });
+        }
+      }
     } catch (err) {
       console.error('Failed to fetch categories:', err);
       setCategories([]);
@@ -305,20 +320,6 @@ const StorePage: React.FC = () => {
         <div className="mb-4 flex flex-col gap-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  syncCategoryToUrl(null);
-                  setCategoryQuery('');
-                }}
-                className={`shrink-0 whitespace-nowrap rounded-2xl border px-5 py-2.5 text-sm font-bold transition-all duration-300 ${
-                  selectedCategoryId === null
-                    ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-200 ring-4 ring-blue-50'
-                    : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                All Products
-              </button>
               <div className="relative min-w-[min(100%,16rem)] flex-1 sm:max-w-md">
                 <input
                   value={categoryQuery}
@@ -381,7 +382,7 @@ const StorePage: React.FC = () => {
           </div>
         ) : categories.length > 0 ? (
           <p className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/80 px-4 py-6 text-center text-sm font-medium text-gray-500">
-            No categories match your search. Clear the search or choose <span className="font-bold text-gray-700">All Products</span>.
+            No categories match your search. Clear the search to see all categories.
           </p>
         ) : null}
       </div>
