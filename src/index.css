@@ -39,3 +39,7 @@ body {
 .rich-description blockquote { border-left: 3px solid #2563eb; padding-left: 0.75rem; color: #555; margin: 0.4rem 0; }
 .rich-description hr { border: none; border-top: 1px solid #e5e7eb; margin: 0.5rem 0; }
 .rich-description code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-size: 0.85em; }
+
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

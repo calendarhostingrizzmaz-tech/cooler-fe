@@ -35,6 +35,7 @@ interface Item {
   description: string;
   categoryId?: number;
   category?: Category;
+  sortOrder: number;
 }
 
 const emptyForm = {
@@ -73,6 +74,33 @@ const ItemsPage: React.FC = () => {
   };
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+  const moveItem = async (index: number, direction: 'up' | 'down') => {
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= items.length) return;
+
+    // Normalize all sortOrders first (fixes items with sortOrder=0 or duplicates)
+    const normalized = items.map((item, i) => ({ ...item, sortOrder: i + 1 }));
+
+    // Swap the two positions
+    const next = [...normalized];
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+
+    // Reassign clean sortOrders after swap
+    const reordered = next.map((item, i) => ({ ...item, sortOrder: i + 1 }));
+
+    setItems(reordered);
+
+    try {
+      await axios.patch(
+        `${API}/items/reorder`,
+        { items: reordered.map(({ id, sortOrder }) => ({ id, sortOrder })) },
+        authHeader,
+      );
+    } catch {
+      showToast('Order update failed. Please refresh.', 'error');
+    }
+  };
 
   /** Auth only — do not set Content-Type on FormData (browser must send multipart boundary). */
   const multipartAuthHeaders = token
@@ -344,6 +372,7 @@ const ItemsPage: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
+                  <th className="text-left px-4 py-4 text-sm font-semibold text-gray-600">Order</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Image</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Price</th>
@@ -353,8 +382,31 @@ const ItemsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => moveItem(index, 'up')}
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <span className="text-[10px] font-bold text-gray-400 tabular-nums">{index + 1}</span>
+                        <button
+                          type="button"
+                          disabled={index === items.length - 1}
+                          onClick={() => moveItem(index, 'down')}
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <div className="flex -space-x-2">

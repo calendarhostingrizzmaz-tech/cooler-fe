@@ -52,6 +52,7 @@ const StorePage: React.FC = () => {
   const modalGallerySliderRef = useRef<Slider | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [categoryQuery, setCategoryQuery] = useState('');
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const { addToCart } = useCart();
 
   const page = useMemo((): number => {
@@ -265,8 +266,6 @@ const StorePage: React.FC = () => {
     return categories.filter((c) => c.name.toLowerCase().includes(q));
   }, [categories, categoryQuery]);
 
-  const shouldAutoScrollCategories = filteredCategories.length > 1;
-
   const handleAdd = (item: Item, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     addToCart({
@@ -350,19 +349,17 @@ const StorePage: React.FC = () => {
             <Slider
               key={`cat-slider-${filteredCategories.map((c) => c.id).join('-')}`}
               {...({
-                // infinite clones slides for the loop — reads as duplicate category pills
-                infinite: false,
-                autoplay: shouldAutoScrollCategories,
-                speed: 500,
-                autoplaySpeed: 2200,
-                cssEase: 'ease-in-out',
-                arrows: true,
+                infinite: filteredCategories.length > 3,
+                autoplay: filteredCategories.length > 3,
+                autoplaySpeed: 0,
+                speed: 2500,
+                cssEase: 'linear',
+                arrows: false,
                 swipeToSlide: true,
                 variableWidth: true,
-                slidesToShow: 1,
+                slidesToShow: Math.min(filteredCategories.length, 4),
                 slidesToScroll: 1,
                 pauseOnHover: true,
-                adaptiveHeight: false,
               } satisfies SlickSettings)}
             >
               {filteredCategories.map((cat) => (
@@ -493,16 +490,21 @@ const StorePage: React.FC = () => {
                 onClick={() => setSelectedItem(item)}
                 className="group bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden cursor-pointer"
               >
-                <div className="relative h-64 overflow-hidden bg-gray-50">
+                <div className="relative h-56 sm:h-64 overflow-hidden bg-white p-4">
                   <img
                     src={cardImageSrc}
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://placehold.co/400x400?text=No+Image';
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  {itemHasDiscount(item) && (
+                    <span className="absolute top-2.5 right-2.5 z-10 rounded-md bg-blue-600 px-2 py-0.5 text-xs font-black text-white shadow">
+                      -{Math.round((1 - Number(item.discountedPrice) / Number(item.price)) * 100)}%
+                    </span>
+                  )}
                   {gallery.length > 1 ? (
                     <>
                       <button
@@ -534,6 +536,11 @@ const StorePage: React.FC = () => {
                     </span>
                   </div>
                   <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors truncate">{item.name}</h3>
+                  {item.description && (
+                    <p className="text-gray-500 text-xs leading-relaxed mb-2 line-clamp-2">
+                      {item.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between mt-2 gap-2">
                     <span className="text-xl font-black text-blue-600 flex flex-wrap items-baseline gap-2">
                       {itemHasDiscount(item) ? (
@@ -658,7 +665,7 @@ const StorePage: React.FC = () => {
             </button>
 
             {/* Left: image gallery */}
-            <div className="relative md:w-1/2 bg-gray-50 h-64 md:min-h-[320px] md:h-auto flex flex-col justify-center">
+            <div className="relative md:w-1/2 bg-white flex flex-col justify-center p-4">
               {itemGalleryUrls(selectedItem).length > 1 ? (
                 <>
                   <button
@@ -695,7 +702,8 @@ const StorePage: React.FC = () => {
                         <img
                           src={src}
                           alt={`${selectedItem.name} — ${idx + 1}`}
-                          className="w-full h-64 md:h-96 object-cover rounded-2xl md:rounded-none"
+                          className="w-full h-64 sm:h-80 md:h-[26rem] object-contain bg-white cursor-zoom-in rounded-xl"
+                          onClick={() => setLightboxSrc(src)}
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
                               'https://placehold.co/600x600?text=No+Image';
@@ -709,7 +717,8 @@ const StorePage: React.FC = () => {
                 <img
                   src={itemPrimaryImage(selectedItem)}
                   alt={selectedItem.name}
-                  className="w-full h-full min-h-[16rem] object-cover"
+                  className="w-full h-64 sm:h-80 md:h-[26rem] object-contain bg-white cursor-zoom-in rounded-xl"
+                  onClick={() => setLightboxSrc(itemPrimaryImage(selectedItem))}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://placehold.co/600x600?text=No+Image';
                   }}
@@ -757,6 +766,27 @@ const StorePage: React.FC = () => {
           </div>
           {/* Backdrop Click */}
           <div className="absolute inset-0 -z-10" onClick={() => setSelectedItem(null)} />
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors text-xl"
+            onClick={() => setLightboxSrc(null)}
+          >
+            ✕
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Full size"
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>
