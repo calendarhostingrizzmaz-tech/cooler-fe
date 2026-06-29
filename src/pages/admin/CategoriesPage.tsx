@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { notifyCategoriesUpdated } from '../../utils/resolveCategoryName';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -62,17 +63,23 @@ const CategoriesPage: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      showToast('Category name is required.', 'error');
+      return;
+    }
     setSaving(true);
     try {
       if (editCategory) {
-        await axios.patch(`${API}/categories/${editCategory.id}`, { name }, authHeader);
+        await axios.patch(`${API}/categories/${editCategory.id}`, { name: trimmedName }, authHeader);
         showToast('Category updated!');
       } else {
-        await axios.post(`${API}/categories`, { name }, authHeader);
+        await axios.post(`${API}/categories`, { name: trimmedName }, authHeader);
         showToast('Category created!');
       }
       setShowModal(false);
-      fetchCategories();
+      await fetchCategories();
+      notifyCategoriesUpdated();
     } catch (err: any) {
       showToast(err?.response?.data?.message || 'Failed to save category', 'error');
     } finally {
@@ -84,7 +91,8 @@ const CategoriesPage: React.FC = () => {
     try {
       await axios.put(`${API}/categories/${id}/set-default`, {}, authHeader);
       showToast('Default category updated!');
-      fetchCategories();
+      await fetchCategories();
+      notifyCategoriesUpdated();
     } catch {
       showToast('Failed to set default category.', 'error');
     }
@@ -99,7 +107,8 @@ const CategoriesPage: React.FC = () => {
     try {
       await axios.delete(`${API}/categories/${id}`, authHeader);
       showToast('Category deleted.');
-      fetchCategories();
+      await fetchCategories();
+      notifyCategoriesUpdated();
     } catch (err: any) {
       showToast(err?.response?.data?.message || 'Failed to delete category.', 'error');
     }

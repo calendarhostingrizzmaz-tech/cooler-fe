@@ -4,6 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { parseItemsListResponse } from '../../utils/parseItemsListResponse';
 import {
+  CATEGORIES_UPDATED_EVENT,
+  resolveCategoryName,
+} from '../../utils/resolveCategoryName';
+import {
   itemEffectiveUnitPrice,
   itemHasDiscount,
   itemGalleryUrls,
@@ -235,6 +239,27 @@ const ItemsPage: React.FC = () => {
     fetchItems();
     fetchCategories();
   }, [fetchItems, fetchCategories]);
+
+  useEffect(() => {
+    const refreshCatalog = () => {
+      fetchCategories();
+      fetchItems();
+    };
+    window.addEventListener(CATEGORIES_UPDATED_EVENT, refreshCatalog);
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) refreshCatalog();
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener(CATEGORIES_UPDATED_EVENT, refreshCatalog);
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, [fetchCategories, fetchItems]);
+
+  const getItemCategoryName = useCallback(
+    (item: Item) => resolveCategoryName(item.categoryId, categories, item.category),
+    [categories],
+  );
 
   useEffect(() => {
     setListPage(1);
@@ -488,7 +513,9 @@ const ItemsPage: React.FC = () => {
                         <span>PKR {Number(item.price).toFixed(2)}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-500">{item.category?.name || <span className="italic text-gray-400">None</span>}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-500">
+                      {getItemCategoryName(item) || <span className="italic text-gray-400">None</span>}
+                    </td>
                     <td className="px-6 py-4 text-gray-500 text-sm max-w-xs truncate">{item.description}</td>
                     <td className="px-6 py-4 text-right">
                       <button

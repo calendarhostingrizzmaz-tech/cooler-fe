@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import Slider, { Settings as SlickSettings } from 'react-slick';
@@ -10,6 +10,10 @@ import {
   itemGalleryUrls,
   itemPrimaryImage,
 } from '../utils/itemPrice';
+import {
+  CATEGORIES_UPDATED_EVENT,
+  resolveCategoryName,
+} from '../utils/resolveCategoryName';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -38,6 +42,20 @@ interface Item {
 }
 
 const ITEMS_PER_PAGE = 8;
+
+/** Default collection when opening /store with no category in the URL. */
+const DEFAULT_STORE_CATEGORY_NAMES = [
+  'Electric Water Coolers',
+  'Electric Water Cooler',
+];
+
+function findDefaultStoreCategory(categories: Category[]): Category | undefined {
+  for (const name of DEFAULT_STORE_CATEGORY_NAMES) {
+    const match = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
+    if (match) return match;
+  }
+  return categories.find((c) => c.isDefault);
+}
 
 const StorePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -97,6 +115,19 @@ const StorePage: React.FC = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const refreshCategories = () => {
+      fetchCategories();
+    };
+    window.addEventListener(CATEGORIES_UPDATED_EVENT, refreshCategories);
+    return () => window.removeEventListener(CATEGORIES_UPDATED_EVENT, refreshCategories);
+  }, []);
+
+  const getItemCategoryName = useCallback(
+    (item: Item) => resolveCategoryName(item.categoryId, categories, item.category),
+    [categories],
+  );
 
   useEffect(() => {
     const categoryNameFromUrl = searchParams.get('category')?.trim();
@@ -230,11 +261,11 @@ const StorePage: React.FC = () => {
       const list = Array.from(byId.values());
       setCategories(list);
 
-      // Auto-select default category if no category is in URL
+      // Default to Electric Water Coolers when no category is in the URL
       const hasCategory = searchParams.get('categoryId');
       const hasCategoryName = searchParams.get('category');
       if (!hasCategory && !hasCategoryName) {
-        const def = list.find((c) => c.isDefault);
+        const def = findDefaultStoreCategory(list);
         if (def) {
           setSearchParams((prev) => {
             const next = new URLSearchParams(prev);
@@ -555,7 +586,7 @@ const StorePage: React.FC = () => {
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-full">
-                      {item.category?.name || 'Other'}
+                      {getItemCategoryName(item) || 'Other'}
                     </span>
                   </div>
                   <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors truncate">{item.name}</h3>
