@@ -112,11 +112,10 @@ Electric water cooler Price in Pakistan from national industries,We have a wide 
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
           {[
-            { title: 'Air Coolers', img: '/banner1.png', items: '40+ Items', color: 'bg-blue-600' },
-            { title: 'Electric Water Cooler', img: '/electric-water-cooler.jpeg', items: '70+ Items', color: 'bg-indigo-600' },
-            // { title: 'Water Dispenser', img: '/water-dispenser.jpeg', items: '20+ Items', color: 'bg-sky-600' },
-            { title: 'Geaser', img: '/geaser.jpg', items: '20+ Items', color: 'bg-sky-600' }
-
+            { title: 'Air Coolers', categoryName: 'Air Coolers', img: '/banner1.png', items: '40+ Items', color: 'bg-blue-600' },
+            { title: 'Electric Water Cooler', categoryName: 'Electric Water Coolers', img: '/electric-water-cooler.jpeg', items: '70+ Items', color: 'bg-indigo-600' },
+            // { title: 'Water Dispenser', categoryName: 'Water Dispensers', img: '/water-dispenser.jpeg', items: '20+ Items', color: 'bg-sky-600' },
+            { title: 'Geaser', categoryName: 'Geysers', img: '/geaser.jpg', items: '20+ Items', color: 'bg-sky-600' },
           ].map((cat, i) => (
             <div key={i} className="group relative rounded-3xl sm:rounded-[2.5rem] overflow-hidden aspect-[3/4] sm:aspect-[4/5] cursor-pointer shadow-xl max-w-md mx-auto md:max-w-none w-full">
                <img src={cat.img} alt={cat.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
@@ -124,8 +123,8 @@ Electric water cooler Price in Pakistan from national industries,We have a wide 
                <div className="absolute bottom-5 left-5 sm:bottom-8 sm:left-8 md:bottom-10 md:left-10 text-white pr-4">
                   <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/60 mb-1 sm:mb-2 inline-block">{cat.items}</span>
                   <h3 className="text-2xl sm:text-3xl font-black mb-3 sm:mb-6 leading-tight">{cat.title}</h3>
-                  <Link 
-                    to="/store" 
+                  <Link
+                    to={`/store?category=${encodeURIComponent(cat.categoryName)}`}
                     className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold bg-white text-gray-900 px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
                   >
                     View Store <span className="text-base sm:text-lg">→</span>

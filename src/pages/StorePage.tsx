@@ -99,6 +99,27 @@ const StorePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const categoryNameFromUrl = searchParams.get('category')?.trim();
+    if (!categoryNameFromUrl || categories.length === 0) return;
+
+    const match = categories.find(
+      (c) => c.name.toLowerCase() === categoryNameFromUrl.toLowerCase(),
+    );
+    if (!match) return;
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('categoryId', String(match.id));
+        next.delete('category');
+        next.delete('page');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [searchParams, categories, setSearchParams]);
+
+  useEffect(() => {
     const raw = searchParams.get('categoryId');
     if (raw == null || raw === '') return;
     const id = Number(raw);
@@ -211,7 +232,8 @@ const StorePage: React.FC = () => {
 
       // Auto-select default category if no category is in URL
       const hasCategory = searchParams.get('categoryId');
-      if (!hasCategory) {
+      const hasCategoryName = searchParams.get('category');
+      if (!hasCategory && !hasCategoryName) {
         const def = list.find((c) => c.isDefault);
         if (def) {
           setSearchParams((prev) => {
