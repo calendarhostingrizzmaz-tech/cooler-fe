@@ -112,17 +112,73 @@ const StorePage: React.FC = () => {
     return id;
   }, [searchParams, categories]);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API}/categories`);
+      const payload = res.data?.data;
+      const raw = Array.isArray(payload) ? payload : [];
+      const byId = new Map<number, Category>();
+      for (const c of raw) {
+        if (c && typeof c.id === 'number' && !byId.has(c.id)) {
+          byId.set(c.id, c as Category);
+        }
+      }
+      const list = Array.from(byId.values());
+      setCategories(list);
+
+      const hasCategory = searchParams.get('categoryId');
+      const hasCategoryName = searchParams.get('category');
+      if (!hasCategory && !hasCategoryName) {
+        const def = findDefaultStoreCategory(list);
+        if (def) {
+          setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('categoryId', String(def.id));
+            return next;
+          }, { replace: true });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+      setCategories([]);
+    }
+  }, [searchParams, setSearchParams]);
+
+  const fetchItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      let url = `${API}/items?page=${page}&limit=${ITEMS_PER_PAGE}`;
+      if (selectedCategoryId != null) {
+        url += `&categoryId=${selectedCategoryId}`;
+      }
+      if (minPriceFilter != null) {
+        url += `&minPrice=${minPriceFilter}`;
+      }
+      if (maxPriceFilter != null) {
+        url += `&maxPrice=${maxPriceFilter}`;
+      }
+      const res = await axios.get(url);
+      const { items: list, lastPage, total } = parseItemsListResponse(res);
+      setItems(list as Item[]);
+      setTotalPages(lastPage);
+      setTotalCount(total);
+    } catch {
+      setItems([]);
+      setTotalPages(1);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, selectedCategoryId, minPriceFilter, maxPriceFilter]);
 
   useEffect(() => {
+    fetchCategories();
     const refreshCategories = () => {
       fetchCategories();
     };
     window.addEventListener(CATEGORIES_UPDATED_EVENT, refreshCategories);
     return () => window.removeEventListener(CATEGORIES_UPDATED_EVENT, refreshCategories);
-  }, []);
+  }, [fetchCategories]);
 
   const getItemCategoryName = useCallback(
     (item: Item) => resolveCategoryName(item.categoryId, categories, item.category),
@@ -179,8 +235,7 @@ const StorePage: React.FC = () => {
 
   useEffect(() => {
     fetchItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, selectedCategoryId, minPriceFilter, maxPriceFilter]);
+  }, [fetchItems]);
 
   useEffect(() => {
     if (loading || totalPages < 1) return;
@@ -245,66 +300,6 @@ const StorePage: React.FC = () => {
       },
       { replace: true },
     );
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get(`${API}/categories`);
-      const payload = res.data?.data;
-      const raw = Array.isArray(payload) ? payload : [];
-      const byId = new Map<number, Category>();
-      for (const c of raw) {
-        if (c && typeof c.id === 'number' && !byId.has(c.id)) {
-          byId.set(c.id, c as Category);
-        }
-      }
-      const list = Array.from(byId.values());
-      setCategories(list);
-
-      // Default to Electric Water Coolers when no category is in the URL
-      const hasCategory = searchParams.get('categoryId');
-      const hasCategoryName = searchParams.get('category');
-      if (!hasCategory && !hasCategoryName) {
-        const def = findDefaultStoreCategory(list);
-        if (def) {
-          setSearchParams((prev) => {
-            const next = new URLSearchParams(prev);
-            next.set('categoryId', String(def.id));
-            return next;
-          }, { replace: true });
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch categories:', err);
-      setCategories([]);
-    }
-  };
-
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      let url = `${API}/items?page=${page}&limit=${ITEMS_PER_PAGE}`;
-      if (selectedCategoryId != null) {
-        url += `&categoryId=${selectedCategoryId}`;
-      }
-      if (minPriceFilter != null) {
-        url += `&minPrice=${minPriceFilter}`;
-      }
-      if (maxPriceFilter != null) {
-        url += `&maxPrice=${maxPriceFilter}`;
-      }
-      const res = await axios.get(url);
-      const { items: list, lastPage, total } = parseItemsListResponse(res);
-      setItems(list as Item[]);
-      setTotalPages(lastPage);
-      setTotalCount(total);
-    } catch {
-      setItems([]);
-      setTotalPages(1);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const syncCategoryToUrl = (categoryId: number | null) => {
