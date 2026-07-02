@@ -14,6 +14,10 @@ import {
   CATEGORIES_UPDATED_EVENT,
   resolveCategoryName,
 } from '../utils/resolveCategoryName';
+import {
+  findDefaultStoreCategory,
+  resolveCategoryFromQuery,
+} from '../utils/storeCategoryRouting';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -42,20 +46,6 @@ interface Item {
 }
 
 const ITEMS_PER_PAGE = 8;
-
-/** Default collection when opening /store with no category in the URL. */
-const DEFAULT_STORE_CATEGORY_NAMES = [
-  'Electric Water Coolers',
-  'Electric Water Cooler',
-];
-
-function findDefaultStoreCategory(categories: Category[]): Category | undefined {
-  for (const name of DEFAULT_STORE_CATEGORY_NAMES) {
-    const match = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
-    if (match) return match;
-  }
-  return categories.find((c) => c.isDefault);
-}
 
 const StorePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -123,26 +113,12 @@ const StorePage: React.FC = () => {
           byId.set(c.id, c as Category);
         }
       }
-      const list = Array.from(byId.values());
-      setCategories(list);
-
-      const hasCategory = searchParams.get('categoryId');
-      const hasCategoryName = searchParams.get('category');
-      if (!hasCategory && !hasCategoryName) {
-        const def = findDefaultStoreCategory(list);
-        if (def) {
-          setSearchParams((prev) => {
-            const next = new URLSearchParams(prev);
-            next.set('categoryId', String(def.id));
-            return next;
-          }, { replace: true });
-        }
-      }
+      setCategories(Array.from(byId.values()));
     } catch (err) {
       console.error('Failed to fetch categories:', err);
       setCategories([]);
     }
-  }, [searchParams, setSearchParams]);
+  }, []);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -186,25 +162,45 @@ const StorePage: React.FC = () => {
   );
 
   useEffect(() => {
-    const categoryNameFromUrl = searchParams.get('category')?.trim();
-    if (!categoryNameFromUrl || categories.length === 0) return;
+    if (categories.length === 0) return;
 
-    const match = categories.find(
-      (c) => c.name.toLowerCase() === categoryNameFromUrl.toLowerCase(),
-    );
-    if (!match) return;
+    const collection = searchParams.get('collection');
+    const category = searchParams.get('category');
+    const categoryId = searchParams.get('categoryId');
 
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.set('categoryId', String(match.id));
-        next.delete('category');
-        next.delete('page');
-        return next;
-      },
-      { replace: true },
-    );
-  }, [searchParams, categories, setSearchParams]);
+    const resolved = resolveCategoryFromQuery(categories, { collection, category });
+    if (resolved) {
+      if (categoryId === String(resolved.id) && !collection && !category) {
+        return;
+      }
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set('categoryId', String(resolved.id));
+          next.delete('collection');
+          next.delete('category');
+          next.delete('page');
+          return next;
+        },
+        { replace: true },
+      );
+      return;
+    }
+
+    if (!categoryId && !collection && !category) {
+      const def = findDefaultStoreCategory(categories);
+      if (def) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('categoryId', String(def.id));
+            return next;
+          },
+          { replace: true },
+        );
+      }
+    }
+  }, [categories, searchParams, setSearchParams]);
 
   useEffect(() => {
     const raw = searchParams.get('categoryId');
